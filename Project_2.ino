@@ -17,11 +17,6 @@ double distance;
 Servo servo;
 int Rot=0;
 
-//Other Variables:
-//Remote State
-int Click;
-//Servo Angle
-int Ang=0;
 
 void setup() {
   // put your setup code here, to run once:
@@ -42,31 +37,37 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  while (k<500){
-      OneStep(false);
-      delay(2);
-      k=k+1;
-      }
-  while (k!=0){
-    OneStep(true);
-    delay(2);
-    k=k-1;
+  //read the distance and if its 15cm away from the can, start obstacle avoidance
+  Dist();
+  if (distance < 15) {
+    obstacleAvoidance();
   }
- k=0;
 }
 
 
-void ServoMove(int Click){
-  //If button from remote is clicked, 0,1 position -- Select Type of Steering Movement
-  if (Click==0){
-    Ang=Ang+1;
-    servo.write(Ang);
-    delay(10);
+void obstacleAvoidance() {
+  int ServoLeftMax = 0, ServoRight45 = 90 + 45, ServoStraight = 90;
+  //variables servoleftmax,servoright45,servostraight will be different for everyone.
+  //start by turning the wheel all the way to the left
+  //rotate stepper forward by ~2degrees and then turn the wheel right by 1 degree. repeat until wheel is 45 degrees right.
+  for (int i = ServoLeftMax; i < ServoRight45 ; i++) {
+
+    servo.write(i);
+    while (k < 10) {
+      OneStep(false);
+      delay(2);
+      k = k + 1;
+    }
   }
-  else if(Click==1){
-    Ang=Ang-1;
-    servo.write(Ang);
-    delay(10);
+  //then start straightening the car
+  //move wheel back from 45 degrees right to straight
+  for (int i = ServoRight45; i < ServoStraight ; i--) {
+    servo.write(i);
+    while (k < 10) {
+      OneStep(false);
+      delay(2);
+      k = k + 1;
+    }
   }
 }
 
